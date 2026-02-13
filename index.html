@@ -4,124 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Syahriah Ula Roudlotuth Tholibin</title>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-color: #059669;      
-            --primary-hover: #047857;      
-            --primary-light: #d1fae5;      
-            --secondary-color: #64748b;    
-            --success-color: #10b981;
-            --warning-color: #d97706;      
-            --danger-color: #ef4444;
-            --bg-color: #f0fdf4;           
-            --card-bg: #ffffff;
-            --text-main: #064e3b;          
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --sidebar-width: 260px;
+            --primary-color: #059669; --primary-hover: #047857; --primary-light: #d1fae5;
+            --secondary-color: #64748b; --success-color: #10b981; --danger-color: #ef4444;
+            --bg-color: #f0fdf4; --card-bg: #ffffff; --text-main: #064e3b; --text-muted: #64748b;
+            --border-color: #e2e8f0; --sidebar-width: 260px;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; }
-
-        /* Sidebar Styling */
-        aside {
-            width: var(--sidebar-width);
-            background-color: var(--card-bg);
-            border-right: 1px solid var(--border-color);
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
-            transition: transform 0.3s ease;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-        }
+        
+        /* Sidebar */
+        aside { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); position: fixed; height: 100vh; z-index: 100; transition: transform 0.3s ease; }
         .brand { padding: 1.5rem; color: var(--primary-color); display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--bg-color); }
         .brand i { font-size: 1.8rem; }
         .brand-text h1 { font-size: 1.2rem; font-weight: 800; line-height: 1.2; color: var(--primary-color); }
         .brand-text p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
-
         .nav-menu { list-style: none; padding: 1.5rem 1rem; }
         .nav-item { margin-bottom: 0.5rem; }
-        .nav-link {
-            display: flex; align-items: center; gap: 12px;
-            padding: 0.8rem 1rem; border-radius: 8px;
-            color: var(--text-muted); text-decoration: none; font-weight: 500;
-            transition: all 0.2s; cursor: pointer;
-        }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; border-radius: 8px; color: var(--text-muted); text-decoration: none; font-weight: 500; transition: all 0.2s; cursor: pointer; }
         .nav-link:hover, .nav-link.active { background-color: var(--primary-light); color: var(--primary-color); font-weight: 600; }
         .nav-link i { width: 24px; text-align: center; }
 
-        /* Main Content Styling */
+        /* Main Content */
         main { flex: 1; margin-left: var(--sidebar-width); padding: 2rem; width: calc(100% - var(--sidebar-width)); }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
         h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-main); }
 
-        /* Cards & Buttons */
         .card { background: var(--card-bg); border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 1.5rem; border: 1px solid #f0fdf4; }
         
-        .btn {
-            padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; transition: all 0.2s;
-        }
-        
+        .btn { padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; transition: all 0.2s; }
         .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 6px rgba(5, 150, 105, 0.2); }
-
-        /* Beautiful Save Button */
-        .btn-save {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            color: white; width: 100%; padding: 1rem; font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3); border: none; letter-spacing: 0.5px;
-        }
-        .btn-save:hover { box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4); transform: translateY(-2px); filter: brightness(110%); }
-
+        .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+        .btn-save { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; width: 100%; padding: 1rem; font-size: 1rem; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3); border: none; }
+        .btn-save:hover { box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4); transform: translateY(-2px); }
         .btn-secondary { background-color: white; border: 1px solid var(--border-color); color: var(--text-main); }
-        .btn-secondary:hover { background-color: #f8fafc; border-color: var(--primary-color); color: var(--primary-color); }
+        .btn-secondary:hover { border-color: var(--primary-color); color: var(--primary-color); }
         .btn-danger { background-color: var(--danger-color); color: white; }
-        .btn-danger:hover { background-color: #dc2626; }
 
-        /* Forms */
         .form-group { margin-bottom: 1.2rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
-        input:not(.month-checkbox), select {
-            width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color);
-            border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s; background: #fff;
-            color: var(--text-main);
-        }
+        input:not(.month-checkbox), select { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s; background: #fff; color: var(--text-main); }
         input:disabled, select:disabled { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
         input:not(.month-checkbox):focus, select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1); }
 
-        /* Tables */
         .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border-color); }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
-        th { background-color: var(--primary-light); color: var(--primary-dark); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        th { background-color: var(--primary-light); color: var(--primary-dark); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; }
         tr:hover { background-color: #f0fdf4; }
         .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
 
-        /* Checklist Style */
         .month-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 0.5rem; }
         .month-checkbox { display: none; }
-        .month-label {
-            display: flex; align-items: center; justify-content: center; padding: 10px 5px;
-            border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem;
-            cursor: pointer; transition: all 0.2s; color: var(--text-muted); background: white; text-align: center; font-weight: 500;
-        }
+        .month-label { display: flex; align-items: center; justify-content: center; padding: 10px 5px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; color: var(--text-muted); background: white; text-align: center; font-weight: 500; }
         .month-label:hover { background-color: #f0fdf4; border-color: var(--primary-color); }
-        .month-checkbox:checked + .month-label {
-            background-color: var(--primary-color); color: white; border-color: var(--primary-color);
-            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); font-weight: 700;
-        }
-        .month-checkbox:disabled + .month-label {
-            background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; text-decoration: line-through;
-        }
+        .month-checkbox:checked + .month-label { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); font-weight: 700; }
+        .month-checkbox:disabled + .month-label { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; text-decoration: line-through; }
 
-        /* Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .stat-card { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 1rem; border: 1px solid #e2e8f0; }
         .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
@@ -129,31 +72,21 @@
         .bg-teal { background: #ccfbf1; color: #0f766e; } 
         .bg-lime { background: #ecfccb; color: #65a30d; } 
 
-        /* Modal */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(6, 78, 59, 0.4); z-index: 200;
-            display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(2px);
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 78, 59, 0.4); z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(2px); }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal { background: white; width: 90%; max-width: 500px; padding: 2rem; border-radius: 16px; transform: scale(0.95); transition: transform 0.3s; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         .modal-overlay.active .modal { transform: scale(1); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #f0fdf4; padding-bottom: 1rem; }
         .close-modal { cursor: pointer; font-size: 1.2rem; color: var(--text-muted); }
-        .close-modal:hover { color: var(--danger-color); }
-
-        /* Utilities */
+        
         .hidden { display: none !important; }
         .text-right { text-align: right; }
         .font-bold { font-weight: 700; }
         
-        /* Toast */
         .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: white; padding: 1rem 1.5rem; border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 12px; min-width: 300px; border-left: 5px solid var(--primary-color); animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* Responsive */
         @media (max-width: 768px) {
             aside { transform: translateX(-100%); } aside.open { transform: translateX(0); }
             main { margin-left: 0; width: 100%; padding: 1rem; }
@@ -171,7 +104,6 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
     <aside id="sidebar">
         <div class="brand">
             <i class="fas fa-mosque"></i>
@@ -188,7 +120,6 @@
         </ul>
     </aside>
 
-    <!-- Main Content -->
     <main>
         <header>
             <div style="display: flex; align-items: center;">
@@ -246,7 +177,6 @@
                 </div>
                 
                 <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
-                    <!-- Filter Kelas -->
                     <div class="form-group">
                         <label for="payment-class-filter"><i class="fas fa-chalkboard-teacher"></i> Pilih Kelas</label>
                         <select id="payment-class-filter" required onchange="filterStudentsByClass()">
@@ -254,7 +184,6 @@
                         </select>
                     </div>
 
-                    <!-- Select Siswa -->
                     <div class="form-group">
                         <label for="student-select"><i class="fas fa-user-graduate"></i> Pilih Santri</label>
                         <select id="student-select" required disabled onchange="updateChecklistStatus()">
@@ -262,7 +191,6 @@
                         </select>
                     </div>
 
-                    <!-- Info Siswa -->
                     <div class="form-group" style="background: #f0fdf4; padding: 1rem; border-radius: 8px; border: 1px dashed var(--primary-color);">
                         <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
                             <span style="color: var(--text-muted);">Kelas:</span>
@@ -274,7 +202,6 @@
                         </div>
                     </div>
 
-                    <!-- CHECKLIST BULAN -->
                     <div class="form-group">
                         <label><i class="fas fa-calendar-check"></i> Pilih Bulan Pembayaran</label>
                         <div id="month-checkbox-container" class="month-grid"></div>
@@ -286,12 +213,10 @@
                         <input type="date" id="payment-date" required>
                     </div>
 
-                    <!-- TOTAL INFO -->
                     <div class="form-group" id="total-preview" style="display:none; background: #d1fae5; padding: 10px; border-radius: 8px; text-align: center; color: var(--primary-dark); font-weight: 600; border: 1px solid var(--primary-color);">
                         Total Pembayaran: <span id="total-amount-display">Rp 0</span>
                     </div>
 
-                    <!-- BUTTON -->
                     <button type="submit" class="btn btn-save" id="submit-btn">
                         <i class="fas fa-check-circle"></i> Proses Pembayaran Sekarang
                     </button>
@@ -392,11 +317,10 @@
         </div>
     </div>
 
-    <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
 
     <script>
-        // --- KONFIGURASI GOOGLE SHEET (SETELAH DI-DEPLOY) ---
+        // --- KONFIGURASI GOOGLE SHEET ---
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvgRAOaeS4a_-U0wZQOQ9zCloqsD_yleil4A7wSBpWQdIJ5k-AUlr1c-chMjoJ-2Az/exec';
         
         // --- DATA & STATE ---
@@ -409,39 +333,77 @@
             "Rajab", "Sya'ban", "Ramadhan", "Syawal"
         ];
 
-        // --- FUNGSI PENYIMPANAN ---
         function saveData() {
             try {
                 localStorage.setItem('spp_students', JSON.stringify(students));
                 localStorage.setItem('spp_transactions', JSON.stringify(transactions));
                 updateDashboard();
-            } catch (e) {
-                console.error("Gagal menyimpan data ke LocalStorage:", e);
-                if (e.name === 'QuotaExceededError') alert("Memori Browser Penuh!");
-            }
+            } catch (e) { console.error("Storage Full", e); }
         }
 
-        // --- FUNGSI PEMUATAN ---
-        function loadData() {
+        // --- UPDATE LOAD DATA: FETCH DARI SHEET ---
+        async function loadData() {
+            // 1. Load Local Data dulu (agar tidak blank saat loading)
             try {
                 const storedStudents = localStorage.getItem('spp_students');
                 const storedTransactions = localStorage.getItem('spp_transactions');
+                if(storedStudents) students = JSON.parse(storedStudents);
+                if(storedTransactions) transactions = JSON.parse(storedTransactions);
+            } catch(e) { console.error("Local Error", e); }
 
-                if (!storedStudents) {
-                    students = [
-                        { id: 1, nis: "1001", name: "Ahmad Rizky", class: "X-A" },
-                        { id: 2, nis: "1002", name: "Budi Santoso", class: "X-A" },
-                        { id: 3, nis: "1003", name: "Citra Lestari", class: "X-B" }
-                    ];
-                    saveData();
-                } else {
-                    students = JSON.parse(storedStudents);
-                    transactions = storedTransactions ? JSON.parse(storedTransactions) : [];
-                    updateDashboard();
+            // 2. Coba Ambil Data Terbaru dari Google Sheet
+            if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.includes('script.google.com')) {
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL);
+                    if(response.ok) {
+                        const sheetData = await response.json();
+                        
+                        // Mapping data dari sheet ke format lokal
+                        sheetData.forEach(row => {
+                            // Cari atau Buat Santri (Autocreate)
+                            let student = students.find(s => s.name === row.name && s.class === row.class);
+                            if(!student) {
+                                // Jika santri belum ada di list lokal, buat baru
+                                student = { id: Date.now() + Math.random(), nis: 'AUTO', name: row.name, class: row.class };
+                                students.push(student);
+                            }
+
+                            // Cek duplikasi berdasarkan Tanggal + Bulan + Santri
+                            const exists = transactions.some(t => 
+                                t.date === row.date && 
+                                t.month === row.month && 
+                                t.studentId === student.id
+                            );
+
+                            if(!exists) {
+                                transactions.push({
+                                    id: Date.now() + Math.random(),
+                                    studentId: student.id,
+                                    date: row.date,
+                                    month: row.month,
+                                    year: String(row.year),
+                                    amount: Number(row.amount)
+                                });
+                            }
+                        });
+                        
+                        // Simpan hasil sinkronisasi ke LocalStorage
+                        saveData();
+                        console.log("Data Synced from Google Sheet");
+                    }
+                } catch (err) {
+                    console.log("Gagal sync ke Sheet (Offline/Error):", err);
+                    // Jika offline, gunakan data LocalStorage yang sudah diambil di langkah 1
                 }
-            } catch (e) {
-                console.error("Gagal memuat data, mereset...", e);
-                students = []; transactions = [];
+            }
+            
+            // Default data jika kosong total
+            if(students.length === 0) {
+                students = [
+                    { id: 1, nis: "1001", name: "Ahmad Rizky", class: "X-A" },
+                    { id: 2, nis: "1002", name: "Budi Santoso", class: "X-A" }
+                ];
+                saveData();
             }
         }
 
@@ -461,7 +423,7 @@
             setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
         }
 
-        // --- UPDATE DROPDOWNS ---
+        // --- FUNGSI UI & LOGIKA (Sama seperti sebelumnya) ---
         function updateClassOptions() {
             const uniqueClasses = [...new Set(students.map(s => s.class))].sort();
             const targetIds = ['payment-class-filter', 'filter-class', 'input-class'];
@@ -497,7 +459,6 @@
             if (uniqueYears.includes(currentVal)) selectElement.value = currentVal;
         }
 
-        // --- DASHBOARD ---
         function updateDashboard() {
             const currentYear = new Date().getFullYear().toString();
             const currentYearTransactions = transactions.filter(t => t.year === currentYear);
@@ -529,7 +490,6 @@
             }
         }
 
-        // --- NAVIGATION ---
         function switchPage(pageId) {
             document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(pageId + '-page').classList.remove('hidden');
@@ -545,7 +505,6 @@
         }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
-        // --- STUDENT MANAGEMENT ---
         function openModal(id) { 
             document.getElementById(id).classList.add('active'); 
             if(id === 'modal-add-student') updateClassOptions(); 
@@ -607,7 +566,6 @@
             }
         }
 
-        // --- PAYMENT LOGIC ---
         function renderMonthCheckboxes() {
             const container = document.getElementById('month-checkbox-container');
             container.innerHTML = '';
@@ -702,8 +660,6 @@
             btn.disabled = true;
 
             let successCount = 0;
-            let duplicateCount = 0;
-            let duplicatesList = [];
 
             // 1. Simpan Lokal
             checkedBoxes.forEach(cb => {
@@ -712,9 +668,8 @@
                 if (!isPaid) {
                     transactions.push({ id: Date.now() + Math.random(), studentId: parseInt(studentId), date: dateStr, month: month, year: year, amount: 35000 }); 
                     successCount++;
-                } else { duplicateCount++; duplicatesList.push(month); }
+                }
             });
-
             saveData();
 
             // 2. Kirim ke Google Sheet
@@ -728,7 +683,7 @@
                         sendToGoogleSheets(payload).then(success => {
                             sentCount++;
                             if(sentCount === successCount) {
-                                showToast(`${successCount} bulan berhasil disimpan ke Spreadsheet.`);
+                                showToast(`${successCount} bulan berhasil disimpan.`);
                             }
                         });
                     }
@@ -736,8 +691,6 @@
             }
 
             btn.innerHTML = originalBtnText; btn.disabled = false;
-            if (duplicateCount > 0 && successCount === 0) showToast(`Gagal: Bulan yang dipilih sudah lunas (${duplicatesList.join(', ')})`, 'error');
-            
             initPaymentPage();
             const prevClass = document.getElementById('payment-class-filter').value;
             if(prevClass) {
@@ -746,7 +699,6 @@
             }
         }
 
-        // --- REPORTS LOGIC ---
         function renderReports() {
             const fClass = document.getElementById('filter-class').value;
             const fMonth = document.getElementById('filter-month').value;

@@ -173,7 +173,7 @@
             <div class="card" style="max-width: 650px; margin: 0 auto; border-top: 5px solid var(--primary-color);">
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--primary-dark);">Input Pembayaran Syahriah</h2>
-                    <p style="color: var(--text-muted);">Data tersinkronisasi langsung ke Spreadsheet ID: <br><code>1fLvB5Wj0R60axDMmjQSuJASVyAe8OXfNmVNOOw8AYZ0</code></p>
+                    <!-- Teks ID Spreadsheet sudah dihapus agar bersih -->
                 </div>
                 
                 <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
@@ -363,7 +363,6 @@
                             // Cari atau Buat Santri (Autocreate)
                             let student = students.find(s => s.name === row.name && s.class === row.class);
                             if(!student) {
-                                // Jika santri belum ada di list lokal, buat baru
                                 student = { id: Date.now() + Math.random(), nis: 'AUTO', name: row.name, class: row.class };
                                 students.push(student);
                             }
@@ -393,7 +392,6 @@
                     }
                 } catch (err) {
                     console.log("Gagal sync ke Sheet (Offline/Error):", err);
-                    // Jika offline, gunakan data LocalStorage yang sudah diambil di langkah 1
                 }
             }
             
@@ -423,7 +421,7 @@
             setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
         }
 
-        // --- FUNGSI UI & LOGIKA (Sama seperti sebelumnya) ---
+        // --- FUNGSI UI & LOGIKA ---
         function updateClassOptions() {
             const uniqueClasses = [...new Set(students.map(s => s.class))].sort();
             const targetIds = ['payment-class-filter', 'filter-class', 'input-class'];

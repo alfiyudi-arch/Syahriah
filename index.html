@@ -229,8 +229,14 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
                     <h3 style="color: var(--primary-dark);"><i class="fas fa-users"></i> Data Santri (Cloud)</h3>
+                    
                     <div class="toolbar">
-                        <button class="btn btn-primary" onclick="openModal('modal-add-student')"><i class="fas fa-plus"></i> Tambah Santri</button>
+                        <button class="btn btn-primary" onclick="openModal('modal-add-student')"><i class="fas fa-plus"></i> Tambah Satu</button>
+                        <button class="btn btn-secondary" onclick="downloadTemplate()"><i class="fas fa-download"></i> Template CSV</button>
+                        <label class="btn btn-secondary" style="cursor: pointer;">
+                            <i class="fas fa-upload"></i> Upload CSV
+                            <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="handleCsvUpload(this)">
+                        </label>
                     </div>
                 </div>
 
@@ -240,7 +246,7 @@
                         <tbody id="students-table-body"></tbody>
                     </table>
                 </div>
-                <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted);">*Data disimpan di Google Sheet. Untuk upload massal, silakan edit langsung di Sheet.</p>
+                <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted);">*Data disimpan di Google Sheet. Gunakan "Upload CSV" untuk menambahkan banyak data sekaligus.</p>
             </div>
         </section>
 
@@ -464,7 +470,6 @@
             const name = document.getElementById('input-name').value.trim();
             const className = document.getElementById('input-class').value;
 
-            // Kirim ke Google Sheet
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerText;
             btn.innerText = "Menyimpan..."; btn.disabled = true;
@@ -486,7 +491,6 @@
                     showToast('Data santri berhasil ditambahkan');
                     closeModal('modal-add-student');
                     e.target.reset();
-                    // Reload data dari server
                     await loadData();
                 } else {
                     showToast(result.message || 'Gagal menyimpan data', 'error');
@@ -497,6 +501,81 @@
             } finally {
                 btn.innerText = originalText; btn.disabled = false;
             }
+        }
+
+        // --- UPLOAD CSV BATCH (ONLINE) ---
+        function downloadTemplate() {
+            const csvContent = "data:text/csv;charset=utf-8," + "NIS,Nama Lengkap,Kelas\n1005,Contoh Santri 1,X-A\n1006,Contoh Santri 2,XI-IPA";
+            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", "template_santri.csv");
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        async function handleCsvUpload(input) {
+            const file = input.files[0]; if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const rows = text.split('\n');
+                let studentsBatch = [];
+                let errorCount = 0;
+
+                // Skip header (i=1)
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i].trim();
+                    if (!row) continue;
+                    const cols = row.split(',');
+                    
+                    if (cols.length >= 3) {
+                        // Hapus tanda kutip jika ada dari export excel
+                        const nis = cols[0].trim().replace(/"/g, '');
+                        const name = cols[1].trim().replace(/"/g, '');
+                        const cls = cols[2].trim().replace(/"/g, '');
+
+                        if(nis && name && cls) {
+                            studentsBatch.push({
+                                id: Date.now() + i, // Unique ID sementara
+                                nis: nis,
+                                name: name,
+                                class: cls
+                            });
+                        } else {
+                            errorCount++;
+                        }
+                    } else {
+                        errorCount++;
+                    }
+                }
+
+                if(studentsBatch.length > 0) {
+                    showToast(`Mengupload ${studentsBatch.length} data...`);
+                    
+                    try {
+                        const response = await fetch(GOOGLE_SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                type: 'batch_student',
+                                students: studentsBatch
+                            })
+                        });
+
+                        const result = await response.json();
+                        if(result.status === 'success') {
+                            showToast(result.message || 'Upload Berhasil');
+                            await loadData(); // Reload data
+                        } else {
+                            showToast(result.message || 'Gagal Upload', 'error');
+                        }
+                    } catch(err) {
+                        console.error(err);
+                        showToast('Gagal terhubung ke Server', 'error');
+                    }
+                } else {
+                    showToast('Tidak ada data valid ditemukan di file CSV.', 'error');
+                }
+                input.value = ''; // Reset input
+            };
+            reader.readAsText(file);
         }
 
         function renderStudentsList() {
@@ -553,7 +632,6 @@
             checkboxes.forEach(cb => {
                 cb.checked = false; 
                 const month = cb.value;
-                // Cek apakah sudah lunas di array transactions
                 const isPaid = transactions.some(t => 
                     t.name === student.name && 
                     t.class === student.class &&
@@ -595,11 +673,9 @@
             let successCount = 0;
             let failedCount = 0;
 
-            // Loop kirim setiap bulan yang dicentang
             for (const cb of checkedBoxes) {
                 const month = cb.value;
                 
-                // Cek duplikasi lagi di server sisi client
                 const isPaid = transactions.some(t => 
                     t.name === student.name && 
                     t.class === student.class &&
@@ -631,7 +707,6 @@
 
             if (successCount > 0) {
                 showToast(`${successCount} bulan berhasil disimpan. Memuat ulang data...`);
-                // Reload Data dari Server agar sinkron
                 await loadData(); 
             } else if (failedCount > 0) {
                 showToast('Gagal menyimpan ke Server. Cek koneksi internet.', 'error');

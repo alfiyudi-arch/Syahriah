@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Syahriah Ula Roudlotuth Tholibin</title>
+    <title>Portal Syahriah Ula Roudlotuth Tholibin (Online)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -44,6 +44,7 @@
         .btn-secondary { background-color: white; border: 1px solid var(--border-color); color: var(--text-main); }
         .btn-secondary:hover { border-color: var(--primary-color); color: var(--primary-color); }
         .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
         .form-group { margin-bottom: 1.2rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
@@ -127,8 +128,8 @@
                 <h1 id="page-title" style="color: var(--primary-color);">Dashboard</h1>
             </div>
             <div class="user-profile">
-                <span style="color: var(--text-muted); font-weight: 500;">Admin</span>
-                <i class="fas fa-user-circle" style="margin-left: 8px; font-size: 1.5rem; color: var(--primary-color);"></i>
+                <span style="color: var(--text-muted); font-weight: 500;">Admin (Online)</span>
+                <i class="fas fa-cloud" style="margin-left: 8px; font-size: 1.5rem; color: var(--primary-color);"></i>
             </div>
         </header>
 
@@ -173,7 +174,6 @@
             <div class="card" style="max-width: 650px; margin: 0 auto; border-top: 5px solid var(--primary-color);">
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--primary-dark);">Input Pembayaran Syahriah</h2>
-                    <!-- Teks ID Spreadsheet sudah dihapus agar bersih -->
                 </div>
                 
                 <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
@@ -228,15 +228,9 @@
         <section id="students-page" class="page-section hidden">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
-                    <h3 style="color: var(--primary-dark);"><i class="fas fa-users"></i> Data Santri</h3>
-                    
+                    <h3 style="color: var(--primary-dark);"><i class="fas fa-users"></i> Data Santri (Cloud)</h3>
                     <div class="toolbar">
-                        <button class="btn btn-primary" onclick="openModal('modal-add-student')"><i class="fas fa-plus"></i> Tambah Manual</button>
-                        <button class="btn btn-secondary" onclick="downloadTemplate()"><i class="fas fa-download"></i> Template CSV</button>
-                        <label class="btn btn-secondary" style="cursor: pointer;">
-                            <i class="fas fa-upload"></i> Upload CSV
-                            <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="handleCsvUpload(this)">
-                        </label>
+                        <button class="btn btn-primary" onclick="openModal('modal-add-student')"><i class="fas fa-plus"></i> Tambah Santri</button>
                     </div>
                 </div>
 
@@ -246,6 +240,7 @@
                         <tbody id="students-table-body"></tbody>
                     </table>
                 </div>
+                <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted);">*Data disimpan di Google Sheet. Untuk upload massal, silakan edit langsung di Sheet.</p>
             </div>
         </section>
 
@@ -323,7 +318,7 @@
         // --- KONFIGURASI GOOGLE SHEET ---
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvgRAOaeS4a_-U0wZQOQ9zCloqsD_yleil4A7wSBpWQdIJ5k-AUlr1c-chMjoJ-2Az/exec';
         
-        // --- DATA & STATE ---
+        // --- DATA & STATE (IN-MEMORY ONLY) ---
         let students = [];
         let transactions = [];
 
@@ -333,76 +328,30 @@
             "Rajab", "Sya'ban", "Ramadhan", "Syawal"
         ];
 
-        function saveData() {
+        // --- LOAD DATA (FULL ONLINE) ---
+        async function loadData() {
             try {
-                localStorage.setItem('spp_students', JSON.stringify(students));
-                localStorage.setItem('spp_transactions', JSON.stringify(transactions));
-                updateDashboard();
-            } catch (e) { console.error("Storage Full", e); }
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                if(!response.ok) throw new Error("Gagal mengambil data");
+                const data = await response.json();
+                
+                if(data.students) students = data.students;
+                if(data.transactions) transactions = data.transactions;
+
+                updateUI();
+                console.log("Data Loaded from Cloud");
+            } catch (err) {
+                console.error(err);
+                showToast("Gagal memuat data dari Server. Pastikan ada koneksi internet.", "error");
+            }
         }
 
-        // --- UPDATE LOAD DATA: FETCH DARI SHEET ---
-        async function loadData() {
-            // 1. Load Local Data dulu (agar tidak blank saat loading)
-            try {
-                const storedStudents = localStorage.getItem('spp_students');
-                const storedTransactions = localStorage.getItem('spp_transactions');
-                if(storedStudents) students = JSON.parse(storedStudents);
-                if(storedTransactions) transactions = JSON.parse(storedTransactions);
-            } catch(e) { console.error("Local Error", e); }
-
-            // 2. Coba Ambil Data Terbaru dari Google Sheet
-            if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.includes('script.google.com')) {
-                try {
-                    const response = await fetch(GOOGLE_SCRIPT_URL);
-                    if(response.ok) {
-                        const sheetData = await response.json();
-                        
-                        // Mapping data dari sheet ke format lokal
-                        sheetData.forEach(row => {
-                            // Cari atau Buat Santri (Autocreate)
-                            let student = students.find(s => s.name === row.name && s.class === row.class);
-                            if(!student) {
-                                student = { id: Date.now() + Math.random(), nis: 'AUTO', name: row.name, class: row.class };
-                                students.push(student);
-                            }
-
-                            // Cek duplikasi berdasarkan Tanggal + Bulan + Santri
-                            const exists = transactions.some(t => 
-                                t.date === row.date && 
-                                t.month === row.month && 
-                                t.studentId === student.id
-                            );
-
-                            if(!exists) {
-                                transactions.push({
-                                    id: Date.now() + Math.random(),
-                                    studentId: student.id,
-                                    date: row.date,
-                                    month: row.month,
-                                    year: String(row.year),
-                                    amount: Number(row.amount)
-                                });
-                            }
-                        });
-                        
-                        // Simpan hasil sinkronisasi ke LocalStorage
-                        saveData();
-                        console.log("Data Synced from Google Sheet");
-                    }
-                } catch (err) {
-                    console.log("Gagal sync ke Sheet (Offline/Error):", err);
-                }
-            }
-            
-            // Default data jika kosong total
-            if(students.length === 0) {
-                students = [
-                    { id: 1, nis: "1001", name: "Ahmad Rizky", class: "X-A" },
-                    { id: 2, nis: "1002", name: "Budi Santoso", class: "X-A" }
-                ];
-                saveData();
-            }
+        function updateUI() {
+            updateDashboard();
+            updateClassOptions();
+            updateYearOptions();
+            renderStudentsList();
+            renderReports();
         }
 
         function formatRupiah(num) {
@@ -421,7 +370,7 @@
             setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
         }
 
-        // --- FUNGSI UI & LOGIKA ---
+        // --- FUNGSI UI ---
         function updateClassOptions() {
             const uniqueClasses = [...new Set(students.map(s => s.class))].sort();
             const targetIds = ['payment-class-filter', 'filter-class', 'input-class'];
@@ -474,12 +423,11 @@
                 recentBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada transaksi.</td></tr>';
             } else {
                 sortedTrans.forEach(t => {
-                    const student = students.find(s => s.id == t.studentId);
                     recentBody.innerHTML += `
                         <tr>
                             <td>${t.date}</td>
-                            <td>${student.name}</td>
-                            <td>${student.class}</td>
+                            <td>${t.name}</td>
+                            <td>${t.class}</td>
                             <td>${t.month}</td>
                             <td class="font-bold text-primary">${formatRupiah(t.amount)}</td>
                         </tr>
@@ -509,59 +457,54 @@
         }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        function handleManualStudentSubmit(e) {
+        // --- TAMBAH SANTRI (ONLINE) ---
+        async function handleManualStudentSubmit(e) {
             e.preventDefault();
             const nis = document.getElementById('input-nis').value.trim();
             const name = document.getElementById('input-name').value.trim();
             const className = document.getElementById('input-class').value;
-            if (students.some(s => s.nis === nis)) { showToast('Gagal: NIS sudah terdaftar!', 'error'); return; }
-            students.push({ id: Date.now(), nis: nis, name: name, class: className });
-            saveData(); updateClassOptions(); showToast('Data santri berhasil ditambahkan');
-            closeModal('modal-add-student'); e.target.reset(); renderStudentsList();
-        }
 
-        function downloadTemplate() {
-            const csvContent = "data:text/csv;charset=utf-8," + "NIS,Nama Lengkap,Kelas\n1005,Contoh Santri 1,X-A\n1006,Contoh Santri 2,XI-IPA";
-            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", "template_santri.csv");
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        }
+            // Kirim ke Google Sheet
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = "Menyimpan..."; btn.disabled = true;
 
-        function handleCsvUpload(input) {
-            const file = input.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const rows = e.target.result.split('\n'); let added = 0, dup = 0, err = 0;
-                for (let i = 1; i < rows.length; i++) {
-                    const row = rows[i].trim(); if (!row) continue;
-                    const cols = row.split(',');
-                    if (cols.length < 3) { err++; continue; }
-                    const nis = cols[0].trim(), name = cols[1].trim(), cls = cols[2].trim();
-                    if (!nis || !name || !cls) { err++; continue; }
-                    if (students.some(s => s.nis === nis)) { dup++; continue; }
-                    students.push({ id: Date.now() + i, nis: nis, name: name, class: cls }); added++;
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: 'student',
+                        id: Date.now(),
+                        nis: nis,
+                        name: name,
+                        class: className
+                    })
+                });
+                
+                const result = await response.json();
+                if(result.status === 'success') {
+                    showToast('Data santri berhasil ditambahkan');
+                    closeModal('modal-add-student');
+                    e.target.reset();
+                    // Reload data dari server
+                    await loadData();
+                } else {
+                    showToast(result.message || 'Gagal menyimpan data', 'error');
                 }
-                saveData(); updateClassOptions(); renderStudentsList();
-                showToast(`Selesai: ${added} ditambah. ${dup} duplikat. ${err} error.`, added > 0 ? 'success' : 'error');
-                input.value = '';
-            };
-            reader.readAsText(file);
+            } catch(err) {
+                console.error(err);
+                showToast('Terjadi kesalahan koneksi', 'error');
+            } finally {
+                btn.innerText = originalText; btn.disabled = false;
+            }
         }
 
         function renderStudentsList() {
             const tbody = document.getElementById('students-table-body'); tbody.innerHTML = '';
             if(students.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;">Belum ada data.</td></tr>'; return; }
             students.forEach(s => {
-                tbody.innerHTML += `<tr><td>${s.nis}</td><td>${s.name}</td><td><span class="status-badge" style="background:#f0fdf4; color:var(--primary-color); border:1px solid #d1fae5;">${s.class}</span></td><td><button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="deleteStudent(${s.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${s.nis}</td><td>${s.name}</td><td><span class="status-badge" style="background:#f0fdf4; color:var(--primary-color); border:1px solid #d1fae5;">${s.class}</span></td><td><span style="font-size:0.8rem; color:#999;">Hapus via Sheet</span></td></tr>`;
             });
-        }
-
-        function deleteStudent(id) {
-            if(confirm('PERINGATAN: Menghapus santri ini akan MENGHAPUS PERMANEN seluruh riwayat pembayaran. Lanjutkan?')) {
-                students = students.filter(s => s.id !== id);
-                transactions = transactions.filter(t => t.studentId !== id);
-                saveData(); updateClassOptions(); renderStudentsList(); 
-                showToast('Data santri dan riwayat transaksi dihapus permanen'); 
-            }
         }
 
         function renderMonthCheckboxes() {
@@ -603,13 +546,20 @@
 
         function updateChecklistStatus() {
             const studentId = document.getElementById('student-select').value;
+            const student = students.find(s => s.id == studentId);
             const dateStr = document.getElementById('payment-date').value;
             const year = new Date(dateStr).getFullYear().toString();
             const checkboxes = document.querySelectorAll('.month-checkbox');
             checkboxes.forEach(cb => {
                 cb.checked = false; 
                 const month = cb.value;
-                const isPaid = transactions.some(t => t.studentId == studentId && t.month === month && t.year === year);
+                // Cek apakah sudah lunas di array transactions
+                const isPaid = transactions.some(t => 
+                    t.name === student.name && 
+                    t.class === student.class &&
+                    t.month === month && 
+                    t.year === year
+                );
                 cb.disabled = isPaid;
             });
             calculateTotal();
@@ -626,66 +576,67 @@
             } else { totalDiv.style.display = 'none'; }
         }
 
-        function sendToGoogleSheets(data) {
-            if (!GOOGLE_SCRIPT_URL) return;
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if(!response.ok) throw new Error('Network response was not ok');
-                return true;
-            })
-            .catch(error => {
-                console.error("Gagal mengirim ke Google Sheet:", error);
-                return false;
-            });
-        }
-
-        function handlePaymentSubmit(e) {
+        // --- KIRIM TRANSAKSI (ONLINE) ---
+        async function handlePaymentSubmit(e) {
             e.preventDefault();
             const studentId = document.getElementById('student-select').value;
+            const student = students.find(s => s.id == studentId);
             const dateStr = document.getElementById('payment-date').value;
             const year = new Date(dateStr).getFullYear().toString();
-            const student = students.find(s => s.id == studentId);
             
             const checkedBoxes = document.querySelectorAll('.month-checkbox:checked');
             if (checkedBoxes.length === 0) { showToast('Silakan pilih minimal satu bulan pembayaran', 'error'); return; }
 
             const btn = document.getElementById('submit-btn');
             const originalBtnText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim ke Server...';
             btn.disabled = true;
 
             let successCount = 0;
+            let failedCount = 0;
 
-            // 1. Simpan Lokal
-            checkedBoxes.forEach(cb => {
+            // Loop kirim setiap bulan yang dicentang
+            for (const cb of checkedBoxes) {
                 const month = cb.value;
-                const isPaid = transactions.some(t => t.studentId == studentId && t.month === month && t.year === year);
-                if (!isPaid) {
-                    transactions.push({ id: Date.now() + Math.random(), studentId: parseInt(studentId), date: dateStr, month: month, year: year, amount: 35000 }); 
-                    successCount++;
-                }
-            });
-            saveData();
+                
+                // Cek duplikasi lagi di server sisi client
+                const isPaid = transactions.some(t => 
+                    t.name === student.name && 
+                    t.class === student.class &&
+                    t.month === month && 
+                    t.year === year
+                );
 
-            // 2. Kirim ke Google Sheet
-            if (successCount > 0) {
-                let sentCount = 0;
-                checkedBoxes.forEach(cb => {
-                    const month = cb.value;
-                    const isPaid = transactions.some(t => t.studentId == studentId && t.month === month && t.year === year);
-                    if(!isPaid) {
-                        const payload = { name: student.name, class: student.class, date: dateStr, month: month, year: year, amount: 35000 };
-                        sendToGoogleSheets(payload).then(success => {
-                            sentCount++;
-                            if(sentCount === successCount) {
-                                showToast(`${successCount} bulan berhasil disimpan.`);
-                            }
+                if (!isPaid) {
+                    try {
+                        await fetch(GOOGLE_SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                type: 'transaction',
+                                date: dateStr,
+                                name: student.name,
+                                class: student.class,
+                                month: month,
+                                year: year,
+                                amount: 35000
+                            })
                         });
+                        successCount++;
+                    } catch(err) {
+                        failedCount++;
+                        console.error("Gagal kirim:", err);
                     }
-                });
+                }
+            }
+
+            if (successCount > 0) {
+                showToast(`${successCount} bulan berhasil disimpan. Memuat ulang data...`);
+                // Reload Data dari Server agar sinkron
+                await loadData(); 
+            } else if (failedCount > 0) {
+                showToast('Gagal menyimpan ke Server. Cek koneksi internet.', 'error');
+            } else {
+                showToast('Bulan yang dipilih sudah lunas.', 'error');
             }
 
             btn.innerHTML = originalBtnText; btn.disabled = false;
@@ -704,12 +655,10 @@
             const fSearch = document.getElementById('filter-search').value.toLowerCase();
 
             const filteredData = transactions.filter(t => {
-                const student = students.find(s => s.id == t.studentId);
-                if (!student) return false; 
-                const matchClass = fClass === 'all' || student.class === fClass;
+                const matchClass = fClass === 'all' || t.class === fClass;
                 const matchMonth = fMonth === 'all' || t.month === fMonth;
                 const matchYear = fYear === 'all' || String(t.year) === String(fYear);
-                const matchSearch = student.name.toLowerCase().includes(fSearch);
+                const matchSearch = t.name.toLowerCase().includes(fSearch);
                 return matchClass && matchMonth && matchYear && matchSearch;
             });
 
@@ -722,8 +671,7 @@
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem; color: var(--text-muted);">Tidak ada data yang cocok dengan filter ini.</td></tr>';
             } else {
                 filteredData.forEach((t, index) => {
-                    const student = students.find(s => s.id == t.studentId);
-                    tbody.innerHTML += `<tr><td>${index + 1}</td><td>${t.date}</td><td>${student.name}</td><td>${student.class}</td><td>${t.month}</td><td>${t.year}</td><td class="text-right font-bold">${formatRupiah(t.amount)}</td></tr>`;
+                    tbody.innerHTML += `<tr><td>${index + 1}</td><td>${t.date}</td><td>${t.name}</td><td>${t.class}</td><td>${t.month}</td><td>${t.year}</td><td class="text-right font-bold">${formatRupiah(t.amount)}</td></tr>`;
                 });
             }
             document.getElementById('report-total').innerText = formatRupiah(totalAmount);
@@ -731,7 +679,7 @@
             document.getElementById('print-date').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        // Init
+        // Init: Load Data Awal
         loadData();
     </script>
 </body>
